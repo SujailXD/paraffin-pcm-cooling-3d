@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paraffin wax cooling loop for AI chips, 3D model</title>
+<meta name="description" content="An interactive 3D model of how microencapsulated paraffin wax could cool AI chips with no water.">
+<link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+<header class="bar">
+  <div class="bar__title">
+    <h1>Paraffin wax cooling loop for AI chips</h1>
+    <p class="bar__sub">A 3D model of a hybrid phase change cooling system. Drag to turn it, scroll to zoom. <a href="gpu.html">See one GPU up close</a></p>
+  </div>
+  <div class="credit">
+    <img src="assets/nebucoders-logo-dark.png" width="1157" height="243" alt="NebuCoders">
+    <span class="credit__by"><svg class="gh" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>SujailXD</span>
+  </div>
+  <div class="bar__actions">
+    <fieldset class="seg" aria-label="Simulation speed">
+      <legend class="visually-hidden">Simulation speed</legend>
+      <input type="radio" name="speed" id="sp1" value="1" checked><label for="sp1" title="Real time">1×</label>
+      <input type="radio" name="speed" id="sp5" value="5"><label for="sp5" title="5 times faster">5×</label>
+      <input type="radio" name="speed" id="sp20" value="20"><label for="sp20" title="20 times faster">20×</label>
+    </fieldset>
+    <button class="btn" id="reset" type="button">Reset</button>
+    <button class="btn btn--primary" id="play" type="button" aria-pressed="true">Pause</button>
+  </div>
+</header>
+
+<main class="app">
+  <section class="stage" id="stage" aria-label="3D model of the cooling loop">
+    <p class="stage__msg" id="stage-msg">Loading the 3D model</p>
+    <div class="markers" id="markers">
+      <button class="marker" type="button" data-step="1" aria-label="Step 1, GPUs and cold plates">1</button>
+      <button class="marker" type="button" data-step="2" aria-label="Step 2, wax slurry tank">2</button>
+      <button class="marker" type="button" data-step="3" aria-label="Step 3, dry cooler outside">3</button>
+      <button class="marker" type="button" data-step="4" aria-label="Step 4, pump">4</button>
+      <span class="place" data-at="inside">Inside the data centre</span>
+      <span class="place" data-at="outside">Outside</span>
+      <span class="place" data-at="wall">Building wall</span>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span><i class="swatch swatch--solid"></i>Solid wax bead</span>
+      <span><i class="swatch swatch--liquid"></i>Melted wax bead</span>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <section class="block">
+      <h2>How the loop works</h2>
+      <ol class="steps" id="steps">
+        <li><button type="button" class="step" data-step="1"><span class="step__n">1</span>Chips heat the slurry</button></li>
+        <li><button type="button" class="step" data-step="2"><span class="step__n">2</span>The tank soaks up spikes</button></li>
+        <li><button type="button" class="step" data-step="3"><span class="step__n">3</span>Outside air refreezes the wax</button></li>
+        <li><button type="button" class="step" data-step="4"><span class="step__n">4</span>The pump sends it back</button></li>
+      </ol>
+      <p class="step-text" id="step-text">The fluid carries tiny beads of paraffin wax, each sealed in a plastic shell. Melting a bead takes a lot of heat, so the fluid can carry heat away without getting much hotter. Pick a step to look closer.</p>
+      <div class="row-actions">
+        <button class="btn btn--quiet" type="button" id="overview">Whole loop</button>
+        <label class="check"><input type="checkbox" id="tour"> Auto tour</label>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Try it</h2>
+      <div class="field">
+        <div class="field__head"><label for="power">Power per GPU</label><output class="measured" id="power-out" for="power">700 W</output></div>
+        <input type="range" id="power" min="300" max="1200" step="50" value="700">
+        <p class="hint">72 GPUs in this rack make <span class="measured" id="rack-kw">50.4 kW</span> of heat. An H100 is 700 W, a B200 about 1,000 W.</p>
+      </div>
+      <div class="field">
+        <div class="field__head"><label for="ambient">Outside air</label><output class="measured" id="ambient-out" for="ambient">25 °C</output></div>
+        <input type="range" id="ambient" min="5" max="45" step="1" value="25">
+      </div>
+      <fieldset class="field wax">
+        <legend>Which wax</legend>
+        <input type="radio" name="wax" id="c22" value="c22"><label for="c22">C22, melts at 44 °C</label>
+        <input type="radio" name="wax" id="c24" value="c24" checked><label for="c24">C24, melts at 51 °C</label>
+        <input type="radio" name="wax" id="c28" value="c28"><label for="c28">C28, melts at 61 °C</label>
+      </fieldset>
+    </section>
+
+    <section class="block">
+      <h2>Readings</h2>
+      <p class="label">Hottest GPU chip</p>
+      <p class="reading" id="r-gpu">Starting</p>
+      <p class="chip" id="r-status">Warming up</p>
+      <dl class="readings">
+        <div><dt>Wax melted leaving the chips</dt><dd class="measured" id="r-melt">Starting</dd></div>
+        <div><dt>Wax refrozen leaving the cooler</dt><dd class="measured" id="r-frozen">Starting</dd></div>
+        <div><dt>Slurry going back to the chips</dt><dd class="measured" id="r-return">Starting</dd></div>
+        <div><dt>Heat going into outside air</dt><dd class="measured" id="r-air">Starting</dd></div>
+        <div><dt>Dry cooler fan speed</dt><dd class="measured" id="r-fan">Starting</dd></div>
+        <div><dt>Simulated time</dt><dd class="measured" id="r-time">00:00:00</dd></div>
+      </dl>
+      <p class="warn" id="warn" hidden></p>
+    </section>
+
+    <section class="block">
+      <h2>Water used</h2>
+      <div class="panels water">
+        <div class="water__row water__row--ok"><span>This loop</span><span class="measured" id="w-loop">0 L</span></div>
+        <div class="water__row water__row--bad"><span>A cooling tower moving the same heat</span><span class="measured" id="w-tower">0 L</span></div>
+      </div>
+      <p class="hint">At this power a tower would evaporate about <span class="measured" id="w-day">1,900 L</span> a day for this one rack. That counts evaporation only; real towers also lose water to spray and flushing.</p>
+    </section>
+
+    <details class="block assumptions">
+      <summary>How the model works</summary>
+      <ul>
+        <li>Fluid: dielectric oil carrying 20% paraffin beads by mass, flowing at 1 kg/s. One lap of the loop takes 40 seconds.</li>
+        <li>Wax stores 200 kJ/kg when it melts and melts over a 3 °C range. Specific heat of the slurry is 1.9 kJ/kg·K.</li>
+        <li>Each GPU sits 0.03 °C/W hotter than the fluid under it, so a 700 W chip runs 21 °C above the fluid. Chips slow down above 85 °C.</li>
+        <li>At full fan speed the dry cooler moves 4 kW of heat for every 1 °C the fluid is warmer than the outside air. The fans slow down to send the slurry back about 6 °C below the wax’s melting point, so the melting wax does most of the work.</li>
+        <li>Cooling tower water: heat ÷ 2,260 kJ/kg, the energy it takes to evaporate 1 kg of water.</li>
+        <li>Not modelled: beads freezing a few degrees late (supercooling), pump power, heat lost from pipes.</li>
+      </ul>
+    </details>
+  </aside>
+</main>
+
+<noscript>
+  <p class="noscript">This model needs JavaScript to draw the 3D loop. In short: GPUs heat a fluid full of tiny paraffin wax beads. The beads melt and soak up the heat. A pump carries them outside to a dry cooler, where fans blow outside air over the pipes and the beads freeze again. Then they go back to the chips. No water is evaporated.</p>
+</noscript>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Single GPU paraffin cooling, 3D model</title>
+<meta name="description" content="An interactive 3D model of one GPU cooled by a paraffin wax slurry loop, a sealed wax container, a chimney and a dry cooler.">
+<link rel="stylesheet" href="style.css">
+<script src="gpu.js" defer></script>
+</head>
+<body>
+<header class="bar">
+  <div class="bar__title">
+    <h1>One GPU, cooled by paraffin wax</h1>
+    <p class="bar__sub">Drag to turn the model, scroll to zoom. <a href="index.html">See the data centre version</a></p>
+  </div>
+  <div class="credit">
+    <img src="assets/nebucoders-logo-dark.png" width="1157" height="243" alt="NebuCoders">
+    <span class="credit__by"><svg class="gh" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.230-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>SujailXD</span>
+  </div>
+  <div class="bar__actions">
+    <fieldset class="seg" aria-label="Simulation speed">
+      <legend class="visually-hidden">Simulation speed</legend>
+      <input type="radio" name="speed" id="sp1" value="1"><label for="sp1" title="Real time">1×</label>
+      <input type="radio" name="speed" id="sp5" value="5"><label for="sp5" title="5 times faster">5×</label>
+      <input type="radio" name="speed" id="sp20" value="20" checked><label for="sp20" title="20 times faster">20×</label>
+    </fieldset>
+    <button class="btn" id="reset" type="button">Reset</button>
+    <button class="btn btn--primary" id="play" type="button" aria-pressed="true">Pause</button>
+  </div>
+</header>
+
+<main class="app">
+  <section class="stage" id="stage" aria-label="3D model of a single GPU paraffin cooling loop">
+    <p class="stage__msg" id="stage-msg">Loading the 3D model</p>
+    <div class="markers" id="markers">
+      <button class="tag" type="button" data-step="1">GPU and cold plate</button>
+      <button class="tag" type="button" data-step="2">Sealed paraffin container</button>
+      <button class="tag" type="button" data-step="3">Heat exhaust chimney</button>
+      <button class="tag" type="button" data-step="4">External dry cooler</button>
+      <button class="tag" type="button" data-step="5">Circulation pump</button>
+      <span class="place" data-at="supply">Cool supply</span>
+      <span class="place" data-at="return">Warm return</span>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span><i class="swatch swatch--solid"></i>Solid wax bead</span>
+      <span><i class="swatch swatch--liquid"></i>Melted wax bead</span>
+      <span><i class="swatch swatch--cool"></i>Cool pipe</span>
+      <span><i class="swatch swatch--hot"></i>Warm pipe</span>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <section class="block">
+      <h2>How it works</h2>
+      <ol class="steps" id="steps">
+        <li><button type="button" class="step" data-step="1"><span class="step__n">1</span>GPU heats the cold plate</button></li>
+        <li><button type="button" class="step" data-step="2"><span class="step__n">2</span>Wax container stores heat</button></li>
+        <li><button type="button" class="step" data-step="3"><span class="step__n">3</span>Chimney lets warm air out</button></li>
+        <li><button type="button" class="step" data-step="4"><span class="step__n">4</span>Dry cooler refreezes the wax</button></li>
+        <li><button type="button" class="step" data-step="5"><span class="step__n">5</span>Pump keeps it moving</button></li>
+      </ol>
+      <p class="step-text" id="step-text">Starting</p>
+      <div class="row-actions">
+        <button class="btn btn--quiet" type="button" id="overview">Whole system</button>
+        <label class="check"><input type="checkbox" id="tour"> Auto tour</label>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Try it</h2>
+      <div class="field">
+        <div class="field__head"><label for="power">GPU power</label><output class="measured" id="power-out" for="power">700 W</output></div>
+        <input type="range" id="power" min="300" max="1200" step="50" value="700">
+        <p class="hint">An H100 is 700 W, a B200 about 1,000 W.</p>
+      </div>
+      <div class="field">
+        <div class="field__head"><label for="ambient">Outside air</label><output class="measured" id="ambient-out" for="ambient">25 °C</output></div>
+        <input type="range" id="ambient" min="5" max="45" step="1" value="25">
+      </div>
+      <fieldset class="field wax">
+        <legend>Which wax</legend>
+        <input type="radio" name="wax" id="c22" value="c22"><label for="c22">C22, melts at 44 °C</label>
+        <input type="radio" name="wax" id="c24" value="c24" checked><label for="c24">C24, melts at 51 °C</label>
+        <input type="radio" name="wax" id="c28" value="c28"><label for="c28">C28, melts at 61 °C</label>
+      </fieldset>
+      <div class="field">
+        <p class="label">What if</p>
+        <div class="row-actions">
+          <button class="btn" type="button" id="burst">AI burst, 1,200 W for 2 min</button>
+        </div>
+        <label class="check"><input type="checkbox" id="fanoff"> Dry cooler fan breaks</label>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Readings</h2>
+      <p class="label">GPU chip</p>
+      <p class="reading" id="r-gpu">Starting</p>
+      <p class="chip" id="r-status">Warming up</p>
+      <dl class="readings">
+        <div><dt>Wax melted in the container</dt><dd class="measured" id="r-block">Starting</dd></div>
+        <div><dt>Beads melted leaving the cold plate</dt><dd class="measured" id="r-melt">Starting</dd></div>
+        <div><dt>Cool supply to the GPU</dt><dd class="measured" id="r-supply">Starting</dd></div>
+        <div><dt>Heat out through the dry cooler</dt><dd class="measured" id="r-cooler">Starting</dd></div>
+        <div><dt>Heat out through the chimney</dt><dd class="measured" id="r-chim">Starting</dd></div>
+        <div><dt>Dry cooler fan speed</dt><dd class="measured" id="r-fan">Starting</dd></div>
+        <div><dt>Simulated time</dt><dd class="measured" id="r-time">00:00:00</dd></div>
+      </dl>
+      <p class="warn" id="warn" hidden></p>
+    </section>
+
+    <section class="block">
+      <h2>Water used</h2>
+      <div class="panels water">
+        <div class="water__row water__row--ok"><span>This system</span><span class="measured">0 L</span></div>
+        <div class="water__row water__row--bad"><span>A cooling tower moving the same heat</span><span class="measured" id="w-tower">0 L</span></div>
+      </div>
+    </section>
+
+    <details class="block assumptions">
+      <summary>How the model works</summary>
+      <ul>
+        <li>The loop carries a slurry of dielectric oil with 20% paraffin beads by mass, at 20 g/s. One lap takes 20 seconds.</li>
+        <li>The sealed container holds 4 kg of paraffin around a copper coil, with fins. Paraffin stores 200 kJ/kg when it melts.</li>
+        <li>The finned coil moves 150 W of heat between slurry and wax for every 1 °C between them. The chimney lets out 4 W per 1 °C the wax is above the outside air.</li>
+        <li>At full speed the dry cooler moves 50 W per 1 °C. Its fan slows to send slurry back about 6 °C below the melting point.</li>
+        <li>The chip runs 0.025 °C/W above the slurry under it and slows down above 85 °C.</li>
+        <li>Cooling tower water: heat ÷ 2,260 kJ/kg. Not modelled: supercooling, pump power, pipe losses.</li>
+      </ul>
+    </details>
+  </aside>
+</main>
+
+<noscript>
+  <p class="noscript">This model needs JavaScript to draw. In short: a pump pushes a fluid full of tiny wax beads over the GPU's cold plate, where the beads melt. The warm fluid passes through a sealed container of paraffin, which stores heat during bursts, then out to a dry cooler where fans refreeze the beads. No water is used.</p>
+</noscript>
+</body>
+</html>
