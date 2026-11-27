@@ -3,6 +3,7 @@
 // carrying its own heat (enthalpy). Colour = how melted its wax is.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { addFloorWatermark } from './watermark.js';
 
 const $ = (s) => document.querySelector(s);
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -250,6 +251,7 @@ const floorOut = new THREE.Mesh(new THREE.PlaneGeometry(9, 10), mat(C.outside, {
 floorOut.rotation.x = -Math.PI / 2; floorOut.position.set(WALL_X + 4.5, 0, 0.5); scene.add(floorOut);
 const grid = new THREE.GridHelper(24, 24, C.rule, C.rule); grid.position.set(0.6, 0.002, 0.5);
 grid.material.transparent = true; grid.material.opacity = 0.5; scene.add(grid);
+addFloorWatermark(scene, { x: -5, z: 3.3, width: 4.6 });
 
 // building wall (glass-like so you can see through)
 const wall = new THREE.Mesh(new THREE.BoxGeometry(0.08, 3.2, 10), mat(C.rule2, { transparent: true, opacity: 0.18, depthWrite: false }));

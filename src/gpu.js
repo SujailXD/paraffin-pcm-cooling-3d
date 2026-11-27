@@ -2,6 +2,7 @@
 // external dry cooler, circulation pump. Each bead is one parcel of slurry with its own heat.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { addFloorWatermark } from './watermark.js';
 
 const $ = (s) => document.querySelector(s);
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -202,6 +203,7 @@ const edges = (geo, pos) => { const l = new THREE.LineSegments(new THREE.EdgesGe
 
 const grid = new THREE.GridHelper(22, 22, C.rule, C.rule); grid.material.transparent = true; grid.material.opacity = 0.45; scene.add(grid);
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), mat(C.ground, { roughness: 1 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -0.01; scene.add(floor);
+addFloorWatermark(scene, { x: -5.2, z: -6.8, width: 6.2, opacity: 0.45 });
 
 // GPU card
 const card = new THREE.Group(); scene.add(card);
