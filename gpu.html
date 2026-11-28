@@ -38,7 +38,6 @@
       <button class="tag" type="button" data-step="2">Sealed paraffin container</button>
       <button class="tag" type="button" data-step="3">Heat exhaust chimney</button>
       <button class="tag" type="button" data-step="4">External dry cooler</button>
-      <button class="tag" type="button" data-step="5">Circulation pump</button>
       <span class="place" data-at="supply">Cool supply</span>
       <span class="place" data-at="return">Warm return</span>
     </div>
@@ -58,7 +57,6 @@
         <li><button type="button" class="step" data-step="2"><span class="step__n">2</span>Wax container stores heat</button></li>
         <li><button type="button" class="step" data-step="3"><span class="step__n">3</span>Chimney lets warm air out</button></li>
         <li><button type="button" class="step" data-step="4"><span class="step__n">4</span>Dry cooler refreezes the wax</button></li>
-        <li><button type="button" class="step" data-step="5"><span class="step__n">5</span>Pump keeps it moving</button></li>
       </ol>
       <p class="step-text" id="step-text">Starting</p>
       <div class="row-actions">
@@ -126,14 +124,14 @@
         <li>The finned coil moves 150 W of heat between slurry and wax for every 1 °C between them. The chimney lets out 4 W per 1 °C the wax is above the outside air.</li>
         <li>At full speed the dry cooler moves 50 W per 1 °C. Its fan slows to send slurry back about 6 °C below the melting point.</li>
         <li>The chip runs 0.025 °C/W above the slurry under it and slows down above 85 °C.</li>
-        <li>Cooling tower water: heat ÷ 2,260 kJ/kg. Not modelled: supercooling, pump power, pipe losses.</li>
+        <li>Cooling tower water: heat ÷ 2,260 kJ/kg. Not modelled: supercooling, pipe losses.</li>
       </ul>
     </details>
   </aside>
 </main>
 
 <noscript>
-  <p class="noscript">This model needs JavaScript to draw. In short: a pump pushes a fluid full of tiny wax beads over the GPU's cold plate, where the beads melt. The warm fluid passes through a sealed container of paraffin, which stores heat during bursts, then out to a dry cooler where fans refreeze the beads. No water is used.</p>
+  <p class="noscript">This model needs JavaScript to draw. In short: a fluid full of tiny wax beads flows over the GPU's cold plate, where the beads melt. The warm fluid passes through a sealed container of paraffin, which stores heat during bursts, then out to a dry cooler where fans refreeze the beads. No water is used.</p>
 </noscript>
 </body>
 </html>

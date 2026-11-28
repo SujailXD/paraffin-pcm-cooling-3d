@@ -5,7 +5,7 @@ Interactive 3D models of a hybrid phase change material (PCM) cooling system tha
 **Live:** https://sujailxd.github.io/paraffin-pcm-cooling-3d/
 
 - [Data centre loop](https://sujailxd.github.io/paraffin-pcm-cooling-3d/index.html): a rack of 72 GPUs, a slurry tank, a dry cooler outside the building and a pump.
-- [One GPU up close](https://sujailxd.github.io/paraffin-pcm-cooling-3d/gpu.html): GPU and cold plate, a sealed paraffin container with a chimney, an external dry cooler and a circulation pump. Try the AI burst and broken-fan scenarios.
+- [One GPU up close](https://sujailxd.github.io/paraffin-pcm-cooling-3d/gpu.html): GPU and cold plate, a sealed paraffin container with a chimney and an external dry cooler. Try the AI burst and broken-fan scenarios.
 
 Every wax bead is a parcel of slurry carrying its own heat, so what you see is the simulation itself. Change the GPU power, outside air temperature and wax type (C22, C24, C28) and watch the readings. The assumptions are listed on each page under "How the model works".
 

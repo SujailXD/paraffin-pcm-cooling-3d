@@ -1,5 +1,5 @@
 // Single GPU paraffin cooling: GPU + cold plate, sealed paraffin container with chimney,
-// external dry cooler, circulation pump. Each bead is one parcel of slurry with its own heat.
+// external dry cooler. Each bead is one parcel of slurry with its own heat.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { addFloorWatermark } from './watermark.js';
@@ -52,13 +52,12 @@ const BOX = { x: 0.5, z: -0.5, s: 2.2, y0: 0.1 };
 const BOXC = V(BOX.x, BOX.y0 + BOX.s / 2, BOX.z);
 const CHIM = { r: 0.42, y1: 6.4 };
 const COOL = { x0: 4.4, x1: 6.6, y0: 0.7, y1: 2.7, z0: -2.5, z1: -1.1 };
-const PUMP = V(2.6, 0.5, 2.6);
 const F = 0.5;
 
 const raw = [];
 const add = (p, tag = 'pipe') => raw.push({ p, tag });
-// pump -> cool supply to the cold plate
-add(V(3.3, F, 2.6), 'pump');
+// cool supply to the cold plate
+add(V(3.3, F, 2.6), 'supply');
 add(V(1.9, F, 2.6), 'supply');
 add(V(-1.2, F, 2.6), 'supply');
 add(V(-1.2, PLATE.y, 2.6), 'supply');
@@ -118,7 +117,7 @@ function buildPath(pts) {
   return { dense, cum, total: cum[dense.length] };
 }
 const PATH = buildPath(raw);
-const TAGS = ['pipe', 'gpu', 'box', 'cooler', 'pump', 'supply', 'return'];
+const TAGS = ['pipe', 'gpu', 'box', 'cooler', 'supply', 'return'];
 const Z_GPU = 1, Z_BOX = 2, Z_COOL = 3;
 const tagIdx = PATH.dense.map((d) => TAGS.indexOf(d.tag));
 function sample(u, out) {
@@ -257,14 +256,6 @@ for (let b = 0; b < 7; b++) { const h = new THREE.Group(); h.rotation.z = b * Ma
 const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.1, 20), mat(C.metal)); hub.rotation.x = Math.PI / 2; fan.add(hub);
 for (const [x, z] of [[COOL.x0, COOL.z0], [COOL.x1, COOL.z0], [COOL.x0, COOL.z1], [COOL.x1, COOL.z1]]) { const leg = new THREE.Mesh(new THREE.BoxGeometry(0.08, COOL.y0, 0.08), mat(C.metal)); leg.position.set(x, COOL.y0 / 2, z); scene.add(leg); }
 
-// pump
-const pump = new THREE.Group(); pump.position.copy(PUMP); scene.add(pump);
-const pBody = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.45, 28), mat(C.metal, { metalness: 0.65, roughness: 0.35 })); pBody.rotation.z = Math.PI / 2; pump.add(pBody);
-const motor = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), mat(C.metalDark)); motor.position.set(0.55, 0, 0); pump.add(motor);
-for (let i = 0; i < 5; i++) { const fin = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.04, 0.64), mat(C.metal)); fin.position.set(0.55, -0.24 + i * 0.12, 0); pump.add(fin); }
-const impeller = new THREE.Group(); impeller.position.set(-0.25, 0, 0); pump.add(impeller);
-for (let b = 0; b < 4; b++) { const v = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.6, 0.06), mat(C.ink)); v.rotation.x = b * Math.PI / 4; impeller.add(v); }
-
 // pipe: one tube, coloured along its length by the slurry temperature inside
 const curve = new THREE.CatmullRomCurve3(PATH.dense.filter((_, i) => i % 2 === 0).map((d) => d.p), true, 'catmullrom', 0.05);
 const RINGS = 1600, RADIAL = 10;
@@ -290,7 +281,7 @@ chimAir.p.forEach((a) => seedChim(a, true)); coolAir.p.forEach((a) => seedCool(a
 
 /* ---------- labels ---------- */
 const anchors = {
-  1: V(-3.0, 1.9, 2.5), 2: V(BOX.x - 0.3, BOX.y0 + BOX.s + 0.35, BOX.z + 1.4), 3: V(BOX.x, CHIM.y1 + 0.4, BOX.z), 4: V(cc.x, COOL.y1 + 0.5, cc.z), 5: V(PUMP.x + 0.3, 1.25, PUMP.z),
+  1: V(-3.0, 1.9, 2.5), 2: V(BOX.x - 0.3, BOX.y0 + BOX.s + 0.35, BOX.z + 1.4), 3: V(BOX.x, CHIM.y1 + 0.4, BOX.z), 4: V(cc.x, COOL.y1 + 0.5, cc.z),
   supply: V(0.4, F + 0.35, 2.6), return: V(2.7, 2.6, -1.1),
 };
 const labelEls = [...document.querySelectorAll('.tag, .place')];
@@ -311,15 +302,13 @@ const VIEWS = {
   2: { pos: V(3.6, 3.6, 4.4), at: V(0.5, 1.2, -0.5) },
   3: { pos: V(4.5, 5.2, 6.0), at: V(0.5, 4.0, -0.5) },
   4: { pos: V(8.6, 5.4, 3.4), at: V(5.3, 1.5, -1.9) },
-  5: { pos: V(4.6, 2.2, 5.6), at: V(2.4, 0.6, 2.4) },
 };
 const TEXT = {
-  0: 'A pump pushes a fluid full of tiny paraffin wax beads around a closed loop. The beads melt where it is hot and freeze where it is cool, carrying heat away. Pick a step to look closer.',
+  0: 'A fluid full of tiny paraffin wax beads flows around a closed loop. The beads melt where it is hot and freeze where it is cool, carrying heat away. Pick a step to look closer.',
   1: 'The cold plate is a copper block sitting on the GPU chip, with a winding channel inside. Solid wax beads flow through and melt, soaking up the chip\'s heat. The chip colour shows its temperature.',
   2: 'A sealed box holds 4 kg of paraffin around a copper coil with fins. Normally it stays solid. When the GPU makes extra heat, or the cooler fails, this wax melts and stores the heat so the chip stays safe.',
   3: 'Warm air rises out of the clear chimney above the wax box, letting a little heat escape to the outside on its own, with no fan and no water.',
-  4: 'Outside, a fan blows air through thin metal fins around the pipe. The melted beads freeze again and give their heat to the air. No water evaporates.',
-  5: 'The pump sends the slurry of frozen beads back to the cold plate as the cool supply. The loop runs all day without stopping.',
+  4: 'Outside, a fan blows air through thin metal fins around the pipe. The melted beads freeze again and give their heat to the air, then flow back to the cold plate as the cool supply. No water evaporates.',
 };
 let current = 0, fly = null, tourOn = false, tourTimer = 0, tourDriving = false;
 function goTo(step) {
@@ -335,7 +324,7 @@ document.querySelectorAll('.step, .tag').forEach((el) => el.addEventListener('cl
 $('#overview').addEventListener('click', () => goTo(0));
 const tourBox = $('#tour');
 function stopTour() { tourOn = false; tourBox.checked = false; }
-tourBox.addEventListener('change', () => { tourOn = tourBox.checked; tourTimer = 0; if (tourOn) { tourDriving = true; goTo(current >= 5 || current === 0 ? 1 : current + 1); tourDriving = false; } });
+tourBox.addEventListener('change', () => { tourOn = tourBox.checked; tourTimer = 0; if (tourOn) { tourDriving = true; goTo(current >= 4 || current === 0 ? 1 : current + 1); tourDriving = false; } });
 controls.addEventListener('start', () => { fly = null; if (tourOn) stopTour(); });
 
 /* ---------- controls ---------- */
@@ -422,14 +411,13 @@ function frame() {
   if (run) {
     const spin = dt * Math.min(P.speed, 5);
     if (!P.fanBroken) fan.rotation.z += spin * 10 * S.fan;
-    impeller.rotation.x += spin * 12;
     const chimRate = Math.max(0, Math.min(1, S.qChim / 150)), coolRate = P.fanBroken ? 0 : Math.max(0, Math.min(1, S.qCool / 900));
     chimAir.m.material.opacity = 0.08 + 0.5 * chimRate; coolAir.m.material.opacity = 0.05 + 0.4 * coolRate;
     chimAir.p.forEach((a, i) => { a.y += a.v * spin * 0.5; if (a.y > CHIM.y1 + 1.2) seedChim(a, false); dummy.position.set(a.x + Math.sin(a.y * 3 + i) * 0.04, a.y, a.z); dummy.updateMatrix(); chimAir.m.setMatrixAt(i, dummy.matrix); });
     coolAir.p.forEach((a, i) => { a.z += a.v * spin * (0.3 + coolRate); a.y += spin * 0.15; if (a.z > COOL.z1 + 1.2) seedCool(a, false); dummy.position.set(a.x, a.y, a.z); dummy.updateMatrix(); coolAir.m.setMatrixAt(i, dummy.matrix); });
     chimAir.m.instanceMatrix.needsUpdate = true; coolAir.m.instanceMatrix.needsUpdate = true;
   }
-  if (tourOn) { tourTimer += dt; if (tourTimer > 9) { tourTimer = 0; tourDriving = true; goTo(current >= 5 ? 1 : current + 1); tourDriving = false; } }
+  if (tourOn) { tourTimer += dt; if (tourTimer > 9) { tourTimer = 0; tourDriving = true; goTo(current >= 4 ? 1 : current + 1); tourDriving = false; } }
   if (fly) {
     fly.t = Math.min(1, fly.t + dt / 1.4); const e = 1 - Math.pow(1 - fly.t, 3);
     camera.position.lerpVectors(fly.fromP, fly.toP, e); controls.target.lerpVectors(fly.fromT, fly.toT, e);
